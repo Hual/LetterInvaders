@@ -14,8 +14,6 @@ namespace LetterInvaders
             buffer.prepare();
             Game.start();
 
-            new Thread(KeyPressWorker).Start();
-
             while (true)
             {
                 buffer.reset();
@@ -24,14 +22,6 @@ namespace LetterInvaders
                     buffer.write();
 
                 Thread.Sleep(50);
-            }
-        }
-
-        static void KeyPressWorker()
-        {
-            while (true)
-            {
-                Game.handleKeyPress(Console.ReadKey(true).Key);
             }
         }
     }

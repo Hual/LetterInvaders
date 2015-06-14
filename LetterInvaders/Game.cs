@@ -33,6 +33,9 @@ namespace LetterInvaders
             invaders = new List<Invader>();
             protagonistMutex = new Mutex(false);
             bulletsMutex = new Mutex(false);
+            new Thread(KeyPressWorker).Start();
+
+
         }
 
         public static bool tick(ConsoleBuffer buffer)
@@ -59,20 +62,7 @@ namespace LetterInvaders
                         continue;
                     }
 
-                    bool backtrack = false;
-
-                    foreach (Invader invader in invaders)
-                    {
-                        if (bullet.Y == invader.Y && bullet.X == invader.X)
-                        {
-                            backtrack = true;
-                            bullets.Remove(bullet);
-                            invaders.Remove(invader);
-                            break;
-                        }
-                    }
-
-                    if (backtrack)
+                    if (checkCollision(bullet))
                         continue;
 
                     bullet.draw(buffer);
@@ -112,43 +102,63 @@ namespace LetterInvaders
             return true;
         }
 
-        public static void handleKeyPress(ConsoleKey key)
+        private static bool checkCollision(Bullet bullet)
         {
-            if (key == ConsoleKey.RightArrow)
+            foreach (Invader invader in invaders)
             {
-                if (protagonistMutex.WaitOne())
+                if (bullet.Y == invader.Y && bullet.X == invader.X)
                 {
-                    protagonist.stepRight();
-                    if (protagonist.X >= 80)
-                        protagonist.X = 0;
-
-                    protagonistMutex.ReleaseMutex();
-                }
-
-            }
-            else if (key == ConsoleKey.LeftArrow)
-            {
-                if (protagonistMutex.WaitOne())
-                {
-                    protagonist.stepLeft();
-                    if (protagonist.X < 0)
-                        protagonist.X = 79;
-
-                    protagonistMutex.ReleaseMutex();
+                    bullets.Remove(bullet);
+                    invaders.Remove(invader);
+                    return true;
                 }
             }
-            else if (key == ConsoleKey.Spacebar && TickCount - protagonist.LastShot > 32)
-            {
-                if (bulletsMutex.WaitOne())
-                {
-                    bullets.Add(new Bullet(protagonist.X, protagonist.Y - 1));
-                    bulletsMutex.ReleaseMutex();
-                }
 
-                if (protagonistMutex.WaitOne())
+            return false;
+        }
+
+        private static void KeyPressWorker()
+        {
+            while (true)
+            {
+                ConsoleKey key = Console.ReadKey(true).Key;
+
+                if (key == ConsoleKey.RightArrow)
                 {
-                    protagonist.LastShot = TickCount;
-                    protagonistMutex.ReleaseMutex();
+                    if (protagonistMutex.WaitOne())
+                    {
+                        protagonist.stepRight();
+                        if (protagonist.X >= 80)
+                            protagonist.X = 0;
+
+                        protagonistMutex.ReleaseMutex();
+                    }
+
+                }
+                else if (key == ConsoleKey.LeftArrow)
+                {
+                    if (protagonistMutex.WaitOne())
+                    {
+                        protagonist.stepLeft();
+                        if (protagonist.X < 0)
+                            protagonist.X = 79;
+
+                        protagonistMutex.ReleaseMutex();
+                    }
+                }
+                else if (key == ConsoleKey.Spacebar && TickCount - protagonist.LastShot > 32)
+                {
+                    if (bulletsMutex.WaitOne())
+                    {
+                        bullets.Add(new Bullet(protagonist.X, protagonist.Y - 1));
+                        bulletsMutex.ReleaseMutex();
+                    }
+
+                    if (protagonistMutex.WaitOne())
+                    {
+                        protagonist.LastShot = TickCount;
+                        protagonistMutex.ReleaseMutex();
+                    }
                 }
             }
         }
