@@ -16,7 +16,7 @@ namespace LetterInvaders
             }
         }
 
-        public Bullet(int x, int y) : base(x, y, '|')
+        public Bullet(int x, int y) : base(x, y, '|', ConsoleColor.White)
         {
             m_lastMoved = 0;
         }

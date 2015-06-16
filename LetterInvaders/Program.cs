@@ -9,17 +9,22 @@ namespace LetterInvaders
     {
         static void Main(string[] args)
         {
-            ConsoleBuffer buffer = new ConsoleBuffer(80, 40);
+            if (Console.LargestWindowHeight < 50)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("ERROR: Your system does not meet the minimum requirements");
+                Console.ReadKey();
+                Environment.Exit(1);
+            }
 
-            buffer.prepare();
-            Game.start();
+            ConsoleCanvas canvas = new ConsoleCanvas(80, 50);
+            HUD hud = new HUD(canvas);
+
+            Game.start(hud);
 
             while (true)
             {
-                buffer.reset();
-
-                if(Game.tick(buffer))
-                    buffer.write();
+                Game.tick(canvas);
 
                 Thread.Sleep(50);
             }

@@ -16,6 +16,11 @@ namespace LetterInvaders
         private static Mutex protagonistMutex;
         private static Mutex bulletsMutex;
 
+        private static sbyte health;
+        private static uint score;
+
+        private static HUD hud;
+
         public static ulong TickCount
         {
             get
@@ -24,28 +29,37 @@ namespace LetterInvaders
             }
         }
 
-        public static void start()
+        public static void start(HUD hud)
         {
-            tickCount = 0;
-            lastSpawnedInvader = 0;
-            protagonist = new LocalActor(0, 39);
+            Game.hud = hud;
+
+            tickCount = 35;
+            lastSpawnedInvader = 35;
+            protagonist = new LocalActor(1, 39);
             bullets = new List<Bullet>();
             invaders = new List<Invader>();
             protagonistMutex = new Mutex(false);
             bulletsMutex = new Mutex(false);
+            health = 5;
+
             new Thread(KeyPressWorker).Start();
-
-
         }
 
-        public static bool tick(ConsoleBuffer buffer)
+        public static bool tick(ConsoleCanvas canvas)
         {
             int i = 0;
 
-            if(TickCount - lastSpawnedInvader > 64)
+            if (TickCount - lastSpawnedInvader > 48)
             {
-                invaders.Add(new Invader(new Random().Next(80), -1));
+                invaders.Add(new Invader(new Random().Next(1, 79), 0));
                 lastSpawnedInvader = TickCount;
+            }
+
+            ulong lastShot = TickCount - protagonist.LastShot;
+
+            if (lastShot <= 35 && lastShot % 7 == 0)
+            {
+                hud.updateLaserBar((byte)(lastShot / 7));
             }
 
             if (bulletsMutex.WaitOne())
@@ -54,18 +68,22 @@ namespace LetterInvaders
                 {
                     Bullet bullet = bullets[i];
 
-                    bullet.step(TickCount);
-
                     if (bullet.Y < 0)
                     {
+                        bullet.remove(canvas);
                         bullets.Remove(bullet);
                         continue;
                     }
 
-                    if (checkCollision(bullet))
+                    if (checkCollision(canvas, bullet))
+                    {
+                        setScore(getScore() + 1);
                         continue;
+                    }
 
-                    bullet.draw(buffer);
+                    bullet.draw(canvas);
+
+                    bullet.step(TickCount);
 
                     ++i;
                 }
@@ -75,7 +93,7 @@ namespace LetterInvaders
 
             i = 0;
 
-            while(i < invaders.Count)
+            while (i < invaders.Count)
             {
                 Invader invader = invaders[i];
 
@@ -83,18 +101,21 @@ namespace LetterInvaders
 
                 if (invader.Y >= protagonist.Y)
                 {
+                    invader.remove(canvas);
                     invaders.Remove(invader);
+
+                    setHealth(getHealth() - 1);
                     continue;
                 }
 
-                invader.draw(buffer);
+                invader.draw(canvas);
 
                 ++i;
             }
 
             if (protagonistMutex.WaitOne())
             {
-                protagonist.draw(buffer);
+                protagonist.draw(canvas);
                 protagonistMutex.ReleaseMutex();
             }
 
@@ -102,12 +123,15 @@ namespace LetterInvaders
             return true;
         }
 
-        private static bool checkCollision(Bullet bullet)
+        private static bool checkCollision(ConsoleCanvas canvas, Bullet bullet)
         {
             foreach (Invader invader in invaders)
             {
                 if (bullet.Y == invader.Y && bullet.X == invader.X)
                 {
+                    bullet.remove(canvas);
+                    invader.remove(canvas);
+
                     bullets.Remove(bullet);
                     invaders.Remove(invader);
                     return true;
@@ -115,6 +139,28 @@ namespace LetterInvaders
             }
 
             return false;
+        }
+
+        private static void setHealth(int health)
+        {
+            Game.health = (sbyte)health;
+            hud.updateHealthBar((byte)health);
+        }
+
+        private static sbyte getHealth()
+        {
+            return health;
+        }
+
+        private static void setScore(uint score)
+        {
+            Game.score = score;
+            hud.updateScore(score);
+        }
+
+        private static uint getScore()
+        {
+            return score;
         }
 
         private static void KeyPressWorker()
@@ -128,8 +174,9 @@ namespace LetterInvaders
                     if (protagonistMutex.WaitOne())
                     {
                         protagonist.stepRight();
-                        if (protagonist.X >= 80)
-                            protagonist.X = 0;
+
+                        if (protagonist.X >= 79)
+                            protagonist.X = 1;
 
                         protagonistMutex.ReleaseMutex();
                     }
@@ -140,13 +187,14 @@ namespace LetterInvaders
                     if (protagonistMutex.WaitOne())
                     {
                         protagonist.stepLeft();
-                        if (protagonist.X < 0)
-                            protagonist.X = 79;
+
+                        if (protagonist.X <= 0)
+                            protagonist.X = 78;
 
                         protagonistMutex.ReleaseMutex();
                     }
                 }
-                else if (key == ConsoleKey.Spacebar && TickCount - protagonist.LastShot > 32)
+                else if (key == ConsoleKey.Spacebar && TickCount - protagonist.LastShot > 35)
                 {
                     if (bulletsMutex.WaitOne())
                     {
@@ -159,6 +207,8 @@ namespace LetterInvaders
                         protagonist.LastShot = TickCount;
                         protagonistMutex.ReleaseMutex();
                     }
+
+                    hud.updateLaserBar(0);
                 }
             }
         }

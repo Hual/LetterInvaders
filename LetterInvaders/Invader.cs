@@ -7,6 +7,7 @@ namespace LetterInvaders
     class Invader : Entity
     {
         private ulong m_lastMoved;
+        private Random seed;
 
         public ulong LastMoved
         {
@@ -16,9 +17,13 @@ namespace LetterInvaders
             }
         }
 
-        public Invader(int x, int y) : base(x, y, (char)new Random().Next(0x23, 0x7A))
+        public Invader(int x, int y) : base(x, y)
         {
+            seed = new Random();
+
             m_lastMoved = 0;
+            Character = (char)seed.Next(0x23, 0x7A);
+            Colour = (ConsoleColor)seed.Next(1, 15);
         }
 
         public void step(ulong tickCount)

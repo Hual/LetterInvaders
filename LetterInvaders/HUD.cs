@@ -17,22 +17,22 @@ namespace LetterInvaders
             m_canvas.fillRect(1, 42, 78, 7, ConsoleColor.Gray);
 
             m_canvas.drawString(9, 44, "Health", ConsoleColor.Black, ConsoleColor.Gray);
-            updateHealth(5);
+            updateHealthBar(5);
 
             m_canvas.drawString(37, 44, "Score", ConsoleColor.Black, ConsoleColor.Gray);
             updateScore(0);
 
             m_canvas.drawString(65, 44, "Laser", ConsoleColor.Black, ConsoleColor.Gray);
-            updateLaser(5);
+            updateLaserBar(5);
         }
 
-        public void updateHealth(byte amount)
+        public void updateHealthBar(byte amount)
         {
             m_canvas.drawLineHorz(2, 46, 4 * amount, ConsoleColor.Red, ConsoleColor.Red);
             m_canvas.drawLineHorz(2 + 4 * amount, 46, 20 - 4 * amount, ConsoleColor.DarkRed, ConsoleColor.DarkRed);
         }
 
-        public void updateLaser(byte amount)
+        public void updateLaserBar(byte amount)
         {
             m_canvas.drawLineHorz(58, 46, 4 * amount, ConsoleColor.Green, ConsoleColor.Green);
             m_canvas.drawLineHorz(58 + 4 * amount, 46, 20 - 4 * amount, ConsoleColor.DarkGreen, ConsoleColor.DarkGreen);

@@ -20,7 +20,7 @@ namespace LetterInvaders
             }
         }
 
-        public LocalActor(int x, int y) : base(x, y, '!')
+        public LocalActor(int x, int y) : base(x, y, '!', ConsoleColor.White)
         {
             m_lastShot = 0;
         }
