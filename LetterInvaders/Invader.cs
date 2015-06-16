@@ -21,9 +21,11 @@ namespace LetterInvaders
         {
             seed = new Random();
 
-            m_lastMoved = 0;
-            Character = (char)seed.Next(0x23, 0x7A);
+            int multiplier = seed.Next(2);
+            Character = (char)seed.Next(0x41 + 0x20 * multiplier, 0x5A + 0x20 * multiplier);
             Colour = (ConsoleColor)seed.Next(1, 15);
+
+            m_lastMoved = 0;
         }
 
         public void step(ulong tickCount)
