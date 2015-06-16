@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("LetterInvaders")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Letter Invaders")]
+[assembly: AssemblyDescription("Letter Invaders - a textual game")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("LetterInvaders")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
+[assembly: AssemblyProduct("Letter Invaders")]
+[assembly: AssemblyCopyright("Copyright © Nikola Yanakiev 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

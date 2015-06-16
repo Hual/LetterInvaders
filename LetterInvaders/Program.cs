@@ -9,6 +9,8 @@ namespace LetterInvaders
     {
         static void Main(string[] args)
         {
+            Console.Title = "Letter Invaders";
+
             if (Console.LargestWindowHeight < 50)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
