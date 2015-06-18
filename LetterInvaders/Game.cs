@@ -82,7 +82,6 @@ namespace LetterInvaders
                     }
 
                     bullet.draw(canvas);
-
                     bullet.step(TickCount);
 
                     ++i;
@@ -97,8 +96,6 @@ namespace LetterInvaders
             {
                 Invader invader = invaders[i];
 
-                invader.step(TickCount);
-
                 if (invader.Y >= protagonist.Y)
                 {
                     invader.remove(canvas);
@@ -109,6 +106,7 @@ namespace LetterInvaders
                 }
 
                 invader.draw(canvas);
+                invader.step(TickCount);
 
                 ++i;
             }
@@ -127,7 +125,7 @@ namespace LetterInvaders
         {
             foreach (Invader invader in invaders)
             {
-                if (bullet.Y == invader.Y && bullet.X == invader.X)
+                if (bullet.X == invader.X && (bullet.Y == invader.Y || (bullet.Y == invader.Y + 1 && TickCount - invader.LastMoved > 3)))
                 {
                     bullet.remove(canvas);
                     invader.remove(canvas);
